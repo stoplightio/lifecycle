@@ -1,6 +1,6 @@
 # @stoplight/lifecycle
 
-<!-- BADGES -->
+[![Maintainability](https://api.codeclimate.com/v1/badges/79ae2a385f589a16e38a/maintainability)](https://codeclimate.com/github/stoplightio/lifecycle/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/79ae2a385f589a16e38a/test_coverage)](https://codeclimate.com/github/stoplightio/lifecycle/test_coverage)
 
 Event and disposable helpers.
 
