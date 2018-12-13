@@ -1,0 +1,69 @@
+{
+  "name": "@stoplight/lifecycle",
+  "version": "0.0.0",
+  "description": "Event and disposable helpers.",
+  "keywords": [],
+  "sideEffects": false,
+  "homepage": "https://github.com/stoplightio/lifecycle",
+  "bugs": "https://github.com/stoplightio/lifecycle/issues",
+  "author": "Stoplight <support@stoplight.io>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoplightio/lifecycle"
+  },
+  "license": "Apache-2.0",
+  "main": "src/index.ts",
+  "files": [
+    "**/*"
+  ],
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "scripts": {
+    "build": "sl-scripts build",
+    "build.docs": "sl-scripts build:typedoc",
+    "commit": "git-cz",
+    "lint": "sl-scripts lint",
+    "lint.fix": "yarn lint --fix",
+    "release": "sl-scripts release",
+    "release.docs": "sl-scripts release:docs",
+    "release.dryRun": "sl-scripts release --dry-run --debug",
+    "test": "sl-scripts test",
+    "test.prod": "yarn lint && yarn test --coverage --no-cache",
+    "test.update": "yarn test --updateSnapshot",
+    "test.watch": "yarn test --watch"
+  },
+  "peerDependencies": {},
+  "dependencies": {
+    "wolfy87-eventemitter": "5.2.x"
+  },
+  "devDependencies": {
+    "@stoplight/scripts": "3.1.x",
+    "typescript": "3.2.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}$": [
+      "yarn lint.fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "release": {
+    "extends": "@stoplight/scripts/release"
+  }
+}
