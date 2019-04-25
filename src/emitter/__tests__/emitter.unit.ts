@@ -6,11 +6,11 @@ describe('emitter', () => {
     const onEventFired2 = jest.fn();
     const onEventFired3 = jest.fn();
 
-    const e = new EventEmitter<string, 'go'>();
+    const e = new EventEmitter();
 
-    const listener1 = e.on('go')(onEventFired1);
-    const listener2 = e.on('go')(onEventFired2);
-    const listener3 = e.on('go')(onEventFired3);
+    const listener1 = e.on('go', onEventFired1);
+    const listener2 = e.on('go', onEventFired2);
+    const listener3 = e.on('go', onEventFired3);
 
     expect(e.hasListeners).toBe(true);
 
@@ -21,11 +21,12 @@ describe('emitter', () => {
     expect(onEventFired3).toHaveBeenCalledWith('yo');
 
     listener2.dispose();
+    onEventFired2.mockClear();
 
-    e.emit('go', 'yo-again');
-    expect(onEventFired1).toHaveBeenCalledWith('yo-again');
-    expect(onEventFired2).not.toHaveBeenCalledWith('yo-again');
-    expect(onEventFired3).toHaveBeenCalledWith('yo-again');
+    e.emit('go', 'yo-again', 'moin');
+    expect(onEventFired1).toHaveBeenCalledWith('yo-again', 'moin');
+    expect(onEventFired2).not.toHaveBeenCalled();
+    expect(onEventFired3).toHaveBeenCalledWith('yo-again', 'moin');
 
     listener1.dispose();
     listener3.dispose();
@@ -38,18 +39,21 @@ describe('emitter', () => {
     const onEventFired2 = jest.fn();
     const onEventFired3 = jest.fn();
 
-    const e = new EventEmitter<string>();
+    const e = new EventEmitter();
 
-    e.on('go')(onEventFired1);
-    e.on('go')(onEventFired2);
-    e.on('go')(onEventFired3);
+    e.on('go', onEventFired1);
+    e.on('go', onEventFired2);
+    e.on('go', onEventFired3);
 
     e.dispose();
 
+    onEventFired1.mockClear();
+    onEventFired2.mockClear();
+    onEventFired3.mockClear();
     e.emit('go', 'yo');
 
-    expect(onEventFired1).not.toHaveBeenCalledWith('yo');
-    expect(onEventFired2).not.toHaveBeenCalledWith('yo');
-    expect(onEventFired3).not.toHaveBeenCalledWith('yo');
+    expect(onEventFired1).not.toHaveBeenCalled();
+    expect(onEventFired2).not.toHaveBeenCalled();
+    expect(onEventFired3).not.toHaveBeenCalled();
   });
 });
