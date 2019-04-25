@@ -1,10 +1,10 @@
+import StrictEventEmitter from 'strict-event-emitter-types';
 import { IDisposable } from '../disposable';
 
-export type EventEmitterOn<T> = (listener: EventEmitterListener<T>) => IDisposable;
-export type EventEmitterListener<T> = (e: T) => void;
+export interface IEventEmitter<E extends object> extends StrictEventEmitter<IEventEmitterInstance, E> {}
 
-export interface IEventEmitter<T, N = string> extends IDisposable {
-  on: (type: N) => EventEmitterOn<T>;
-  emit: (type: N, e: T) => void;
+export interface IEventEmitterInstance extends IDisposable {
+  on(type: number | string, listener: any): IDisposable;
+  emit<A extends Array<unknown> = Array<unknown>>(type: number | string, ...args: A): void;
   hasListeners: boolean;
 }
