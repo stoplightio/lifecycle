@@ -1,7 +1,7 @@
+import StrictEventEmitter from 'strict-event-emitter-types';
 import Emitter = require('wolfy87-eventemitter');
-
 import { createDisposable, IDisposable } from '../disposable';
-import { IEventEmitter } from './types';
+import { IEventEmitter, IEventEmitterInstance } from './types';
 
 export class EventEmitter<E extends object> implements IEventEmitter<E> {
   private _emitter = new Emitter();
@@ -35,4 +35,13 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
   public dispose() {
     this._emitter.removeAllListeners();
   }
+}
+
+// needed to make typings work correctly when subclassing the emitter
+// see https://github.com/bterlson/strict-event-emitter-types/issues/3
+// example usage `class MyClass extends createEventEmitter<IEvents>() { }`
+export function createEventEmitter<T extends object>() {
+  const TypedEmitter: new () => StrictEventEmitter<IEventEmitterInstance, T> = EventEmitter;
+
+  return TypedEmitter;
 }
