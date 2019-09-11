@@ -1,8 +1,8 @@
 /**
- * Created ->- Activating ->- Activated ->- Deactivating ->- Deactivated ->-* Disposed
- *                 |  |                                         |  |
- *                 |  `------------------<----------------------'  `---->---* FailedToDeactivate
- *                 `------------------------------->------------------------* FailedToActivate
+ * Created ->- Activating ->- Activated ->- Deactivating ->- Deactivated -------------->----------- Disposed
+ *                 |  |                                         |  |                                  |  |
+ *                 |  `------------------<----------------------'  `--->--- FailedToDeactivate --->---'  |
+ *                 `--------------------->--------- FailedToActivate ------------------>-----------------'
  */
 
 enum LifeCycleState {
