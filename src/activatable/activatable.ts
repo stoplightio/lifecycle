@@ -5,7 +5,7 @@
  *                 `--------------------->--------- FailedToActivate ------------------>-----------------'
  */
 
-enum LifeCycleState {
+export enum LifecycleState {
   Created = 1,
   Activating,
   Activated,
@@ -16,15 +16,15 @@ enum LifeCycleState {
   FailedToDeactivate,
 }
 
-const LifeCycleDescription = {
-  [LifeCycleState.Created]: 'has never activated before',
-  [LifeCycleState.Activating]: 'is activating',
-  [LifeCycleState.Activated]: 'is activated',
-  [LifeCycleState.Deactivating]: 'is deactivating',
-  [LifeCycleState.Deactivated]: 'is deactivated',
-  [LifeCycleState.Disposed]: 'is disposed',
-  [LifeCycleState.FailedToActivate]: 'errored while activating',
-  [LifeCycleState.FailedToDeactivate]: 'errored while deactivating',
+const LifecycleDescription = {
+  [LifecycleState.Created]: 'has never activated before',
+  [LifecycleState.Activating]: 'is activating',
+  [LifecycleState.Activated]: 'is activated',
+  [LifecycleState.Deactivating]: 'is deactivating',
+  [LifecycleState.Deactivated]: 'is deactivated',
+  [LifecycleState.Disposed]: 'is disposed',
+  [LifecycleState.FailedToActivate]: 'errored while activating',
+  [LifecycleState.FailedToDeactivate]: 'errored while deactivating',
 };
 
 export interface IActivatable {
@@ -39,73 +39,77 @@ export interface IActivatable {
 }
 
 export abstract class Activatable implements IActivatable {
-  private _state: LifeCycleState = LifeCycleState.Created;
+  private _state: LifecycleState = LifecycleState.Created;
+
+  public get state() {
+    return this._state;
+  }
 
   public get isActivating() {
-    return this._state === LifeCycleState.Activating;
+    return this._state === LifecycleState.Activating;
   }
 
   public get isActivated() {
-    return this._state === LifeCycleState.Activated;
+    return this._state === LifecycleState.Activated;
   }
 
   public get isDeactivating() {
-    return this._state === LifeCycleState.Deactivating;
+    return this._state === LifecycleState.Deactivating;
   }
 
   public get isDeactivated() {
     return (
-      this._state === LifeCycleState.Created ||
-      this._state === LifeCycleState.Deactivated ||
-      this._state === LifeCycleState.Disposed
+      this._state === LifecycleState.Created ||
+      this._state === LifecycleState.Deactivated ||
+      this._state === LifecycleState.Disposed
     );
   }
 
   public get isErrored() {
-    return this._state === LifeCycleState.FailedToActivate || this._state === LifeCycleState.FailedToDeactivate;
+    return this._state === LifecycleState.FailedToActivate || this._state === LifecycleState.FailedToDeactivate;
   }
 
   public async activate() {
     switch (this._state) {
-      case LifeCycleState.Activated:
+      case LifecycleState.Activated:
         return;
-      case LifeCycleState.Created:
-      case LifeCycleState.Deactivated:
+      case LifecycleState.Created:
+      case LifecycleState.Deactivated:
         try {
-          this._state = LifeCycleState.Activating;
+          this._state = LifecycleState.Activating;
           await this._activate();
-          this._state = LifeCycleState.Activated;
+          this._state = LifecycleState.Activated;
           return;
         } catch (e) {
-          this._state = LifeCycleState.FailedToActivate;
+          this._state = LifecycleState.FailedToActivate;
           throw e;
         }
       default:
-        throw new Error(`Cannot activate an Activatable that ${LifeCycleDescription[this._state]}`);
+        throw new Error(`Cannot activate an Activatable that ${LifecycleDescription[this._state]}`);
     }
   }
 
   public async deactivate() {
     switch (this._state) {
-      case LifeCycleState.Deactivated:
+      case LifecycleState.Deactivated:
         return;
-      case LifeCycleState.Activated:
+      case LifecycleState.Activated:
         try {
-          this._state = LifeCycleState.Deactivating;
+          this._state = LifecycleState.Deactivating;
           await this._deactivate();
-          this._state = LifeCycleState.Deactivated;
+          this._state = LifecycleState.Deactivated;
           return;
         } catch (e) {
-          this._state = LifeCycleState.FailedToDeactivate;
+          this._state = LifecycleState.FailedToDeactivate;
           throw e;
         }
       default:
-        throw new Error(`Cannot deactivate an Activatable that ${LifeCycleDescription[this._state]}`);
+        throw new Error(`Cannot deactivate an Activatable that ${LifecycleDescription[this._state]}`);
     }
   }
 
   public disposeActivateable() {
-    this._state = LifeCycleState.Disposed;
+    this._state = LifecycleState.Disposed;
   }
 
   protected abstract _activate(): void | Promise<void>;

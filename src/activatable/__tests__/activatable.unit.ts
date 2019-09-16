@@ -1,4 +1,4 @@
-import { Activatable } from '../';
+import { Activatable, LifecycleState } from '../';
 
 const sleep = (ms: number) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
@@ -21,8 +21,11 @@ describe('activatable', () => {
 
     for (const i of [0, 1]) {
       // Initial state
-      expect(activatable.isDeactivated).toEqual(true);
-      expect(activatable.isActivated).toEqual(false);
+      if (i === 0) {
+        expect(activatable.state).toEqual(LifecycleState.Created);
+      } else {
+        expect(activatable.state).toEqual(LifecycleState.Deactivated);
+      }
       expect(activatable.isErrored).toEqual(false);
       if (i === 0) {
         await expect(activatable.deactivate()).rejects.toThrow();
@@ -32,18 +35,21 @@ describe('activatable', () => {
 
       // Activating
       let promise = activatable.activate();
+      expect(activatable.state).toEqual(LifecycleState.Activating);
       expect(activatable.isActivating).toEqual(true);
       await expect(activatable.deactivate()).rejects.toThrow();
       await expect(activatable.activate()).rejects.toThrow();
 
       // Activated
       await promise;
+      expect(activatable.state).toEqual(LifecycleState.Activated);
       expect(activatable.isActivating).toEqual(false);
       expect(activatable.isActivated).toEqual(true);
       expect(counter).toEqual(1);
 
       // Deactivating
       promise = activatable.deactivate();
+      expect(activatable.state).toEqual(LifecycleState.Deactivating);
       expect(activatable.isActivating).toEqual(false);
       expect(activatable.isDeactivating).toEqual(true);
       await expect(activatable.deactivate()).rejects.toThrow();
@@ -51,6 +57,7 @@ describe('activatable', () => {
 
       // Deactivated
       await promise;
+      expect(activatable.state).toEqual(LifecycleState.Deactivated);
       expect(activatable.isDeactivating).toEqual(false);
       expect(activatable.isDeactivated).toEqual(true);
       expect(counter).toEqual(0);
