@@ -121,11 +121,15 @@ export class ActivatableCollection extends Activatable implements IActivatable {
   protected readonly activatables: IActivatable[] = [];
 
   protected async _activate() {
-    await Promise.all(this.activatables.map(activatable => activatable.activate()));
+    for (const activatable of this.activatables) {
+      await activatable.activate();
+    }
   }
 
   protected async _deactivate() {
-    await Promise.all(this.activatables.map(activatable => activatable.deactivate()));
+    for (const activatable of this.activatables) {
+      await activatable.deactivate();
+    }
   }
 
   public push(activatables: IActivatable) {
