@@ -122,7 +122,7 @@ export interface IActivatableCollection extends IActivatable {
 }
 
 export class ActivatableCollection extends Activatable implements IActivatableCollection {
-  protected readonly activatables: IActivatable[] = [];
+  public readonly activatables: IActivatable[] = [];
 
   protected async _activate() {
     for (const activatable of this.activatables) {
