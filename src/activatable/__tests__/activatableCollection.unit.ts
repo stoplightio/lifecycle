@@ -5,10 +5,10 @@ const sleep = (ms: number) => new Promise((resolve, reject) => setTimeout(resolv
 describe('activatable', () => {
   test('collection', async () => {
     class MyActivatableThing extends Activatable {
-      protected async _activate() {
+      protected async doActivate() {
         await sleep(100);
       }
-      protected async _deactivate() {
+      protected async doDeactivate() {
         await sleep(100);
       }
     }

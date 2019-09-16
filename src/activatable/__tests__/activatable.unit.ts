@@ -7,11 +7,11 @@ describe('activatable', () => {
     let counter = 0;
 
     class MyActivatableThing extends Activatable {
-      protected async _activate() {
+      protected async doActivate() {
         await sleep(100);
         counter++;
       }
-      protected async _deactivate() {
+      protected async doDeactivate() {
         await sleep(100);
         counter--;
       }
@@ -26,7 +26,7 @@ describe('activatable', () => {
       } else {
         expect(activatable.state).toEqual(LifecycleState.Deactivated);
       }
-      expect(activatable.isErrored).toEqual(false);
+      expect(activatable.isFailed).toEqual(false);
       if (i === 0) {
         await expect(activatable.deactivate()).rejects.toThrow();
       } else {
@@ -68,11 +68,11 @@ describe('activatable', () => {
     let counter = 0;
 
     class MyActivatableThing extends Activatable {
-      protected async _activate() {
+      protected async doActivate() {
         counter++;
         if (counter === 2) throw new Error('AGH!!');
       }
-      protected async _deactivate() {
+      protected async doDeactivate() {
         // noop
       }
     }
@@ -91,7 +91,7 @@ describe('activatable', () => {
       expect(activatable.isActivated).toEqual(false);
       expect(activatable.isDeactivating).toEqual(false);
       expect(activatable.isDeactivated).toEqual(false);
-      expect(activatable.isErrored).toEqual(true);
+      expect(activatable.isFailed).toEqual(true);
     }
 
     // Can no longer activate or deactivate it
@@ -105,10 +105,10 @@ describe('activatable', () => {
     let counter = 0;
 
     class MyActivatableThing extends Activatable {
-      protected async _activate() {
+      protected async doActivate() {
         // noop
       }
-      protected async _deactivate() {
+      protected async doDeactivate() {
         counter++;
         if (counter === 2) throw new Error('AGH!!');
       }
@@ -129,7 +129,7 @@ describe('activatable', () => {
       expect(activatable.isActivated).toEqual(false);
       expect(activatable.isDeactivating).toEqual(false);
       expect(activatable.isDeactivated).toEqual(false);
-      expect(activatable.isErrored).toEqual(true);
+      expect(activatable.isFailed).toEqual(true);
     }
 
     // Can no longer activate or deactivate it

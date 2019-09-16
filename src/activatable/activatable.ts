@@ -28,11 +28,14 @@ const LifecycleDescription = {
 };
 
 export interface IActivatable {
+  isCreated: boolean;
   isActivating: boolean;
   isActivated: boolean;
   isDeactivating: boolean;
   isDeactivated: boolean;
-  isErrored: boolean;
+  isFailedToActivate: boolean;
+  isFailedToDeactivate: boolean;
+  isFailed: boolean;
   activate: () => Promise<void>;
   deactivate: () => Promise<void>;
   disposeActivateable: () => void;
@@ -43,6 +46,10 @@ export abstract class Activatable implements IActivatable {
 
   public get state() {
     return this._state;
+  }
+
+  public get isCreated() {
+    return this._state === LifecycleState.Created;
   }
 
   public get isActivating() {
@@ -58,14 +65,18 @@ export abstract class Activatable implements IActivatable {
   }
 
   public get isDeactivated() {
-    return (
-      this._state === LifecycleState.Created ||
-      this._state === LifecycleState.Deactivated ||
-      this._state === LifecycleState.Disposed
-    );
+    return this._state === LifecycleState.Deactivated;
   }
 
-  public get isErrored() {
+  public get isFailedToActivate() {
+    return this._state === LifecycleState.FailedToActivate;
+  }
+
+  public get isFailedToDeactivate() {
+    return this._state === LifecycleState.FailedToDeactivate;
+  }
+
+  public get isFailed() {
     return this._state === LifecycleState.FailedToActivate || this._state === LifecycleState.FailedToDeactivate;
   }
 
@@ -77,7 +88,7 @@ export abstract class Activatable implements IActivatable {
       case LifecycleState.Deactivated:
         try {
           this._state = LifecycleState.Activating;
-          await this._activate();
+          await this.doActivate();
           this._state = LifecycleState.Activated;
           return;
         } catch (e) {
@@ -96,7 +107,7 @@ export abstract class Activatable implements IActivatable {
       case LifecycleState.Activated:
         try {
           this._state = LifecycleState.Deactivating;
-          await this._deactivate();
+          await this.doDeactivate();
           this._state = LifecycleState.Deactivated;
           return;
         } catch (e) {
@@ -112,9 +123,9 @@ export abstract class Activatable implements IActivatable {
     this._state = LifecycleState.Disposed;
   }
 
-  protected abstract _activate(): void | Promise<void>;
+  protected abstract doActivate(): void | Promise<void>;
 
-  protected abstract _deactivate(): void | Promise<void>;
+  protected abstract doDeactivate(): void | Promise<void>;
 }
 
 export interface IActivatableCollection extends IActivatable {
@@ -124,13 +135,13 @@ export interface IActivatableCollection extends IActivatable {
 export class ActivatableCollection extends Activatable implements IActivatableCollection {
   public readonly activatables: IActivatable[] = [];
 
-  protected async _activate() {
+  protected async doActivate() {
     for (const activatable of this.activatables) {
       await activatable.activate();
     }
   }
 
-  protected async _deactivate() {
+  protected async doDeactivate() {
     for (const activatable of this.activatables) {
       await activatable.deactivate();
     }
