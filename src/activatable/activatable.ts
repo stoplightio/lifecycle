@@ -117,7 +117,11 @@ export abstract class Activatable implements IActivatable {
   protected abstract _deactivate(): void | Promise<void>;
 }
 
-export class ActivatableCollection extends Activatable implements IActivatable {
+export interface IActivatableCollection extends IActivatable {
+  // noop
+}
+
+export class ActivatableCollection extends Activatable implements IActivatableCollection {
   protected readonly activatables: IActivatable[] = [];
 
   protected async _activate() {
