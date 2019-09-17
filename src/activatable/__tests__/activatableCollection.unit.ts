@@ -20,15 +20,15 @@ describe('activatable', () => {
     activatables.push(a);
     activatables.push(b);
 
-    expect(activatables.isActivated).toEqual(false);
+    expect(activatables.state).toBe('deactivated');
     await activatables.activate();
-    expect(a.isActivated).toEqual(true);
-    expect(b.isActivated).toEqual(true);
-    expect(activatables.isActivated).toEqual(true);
+    expect(a.state).toEqual('activated');
+    expect(b.state).toEqual('activated');
+    expect(activatables.state).toEqual('activated');
 
     await activatables.deactivate();
-    expect(activatables.isDeactivated).toEqual(true);
-    expect(a.isDeactivated).toEqual(true);
-    expect(b.isDeactivated).toEqual(true);
+    expect(activatables.state).toEqual('deactivated');
+    expect(a.state).toEqual('deactivated');
+    expect(b.state).toEqual('deactivated');
   });
 });

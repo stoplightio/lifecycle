@@ -1,4 +1,4 @@
-import { Activatable, LifecycleState } from '../';
+import { Activatable } from '../';
 
 const sleep = (ms: number) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
@@ -21,29 +21,29 @@ describe('activatable', () => {
 
     for (const _ of [0, 1]) {
       // Initial state
-      expect(activatable.state).toEqual(LifecycleState.Deactivated);
+      expect(activatable.state).toEqual('deactivated');
       await expect(activatable.deactivate()).resolves.toBeUndefined();
 
       // Activating
       let promise = activatable.activate();
-      expect(activatable.state).toEqual(LifecycleState.Activating);
+      expect(activatable.state).toEqual('isActivating');
       await expect(activatable.deactivate()).rejects.toThrow();
       await expect(activatable.activate()).rejects.toThrow();
 
       // Activated
       await promise;
-      expect(activatable.state).toEqual(LifecycleState.Activated);
+      expect(activatable.state).toEqual('activated');
       expect(counter).toEqual(1);
 
       // Deactivating
       promise = activatable.deactivate();
-      expect(activatable.state).toEqual(LifecycleState.Deactivating);
+      expect(activatable.state).toEqual('isDeactivating');
       await expect(activatable.deactivate()).rejects.toThrow();
       await expect(activatable.activate()).rejects.toThrow();
 
       // Deactivated
       await promise;
-      expect(activatable.state).toEqual(LifecycleState.Deactivated);
+      expect(activatable.state).toEqual('deactivated');
       expect(counter).toEqual(0);
     }
   });
@@ -73,7 +73,7 @@ describe('activatable', () => {
       error = e;
     } finally {
       expect(error).not.toBeNull();
-      expect(activatable.state).toEqual(LifecycleState.Deactivated);
+      expect(activatable.state).toEqual('deactivated');
     }
   });
 
@@ -103,7 +103,7 @@ describe('activatable', () => {
       error = e;
     } finally {
       expect(error).not.toBeNull();
-      expect(activatable.state).toEqual(LifecycleState.Activated);
+      expect(activatable.state).toEqual('activated');
     }
   });
 });

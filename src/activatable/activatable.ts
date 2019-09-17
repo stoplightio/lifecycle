@@ -17,57 +17,33 @@
 Created with Monodraw
  */
 
-export enum LifecycleState {
-  Deactivated = 'Deactivated',
-  Activating = 'Activating',
-  Activated = 'Activated',
-  Deactivating = 'Deactivating',
-}
+export type LifecycleState = 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating';
 
 export interface IActivatable {
-  isActivating: boolean;
-  isActivated: boolean;
-  isDeactivating: boolean;
-  isDeactivated: boolean;
+  readonly state: LifecycleState;
   activate: () => Promise<void>;
   deactivate: () => Promise<void>;
 }
 
 export abstract class Activatable implements IActivatable {
-  private _state: LifecycleState = LifecycleState.Deactivated;
+  private _state: LifecycleState = 'deactivated';
 
   public get state() {
     return this._state;
   }
 
-  public get isActivating() {
-    return this._state === LifecycleState.Activating;
-  }
-
-  public get isActivated() {
-    return this._state === LifecycleState.Activated;
-  }
-
-  public get isDeactivating() {
-    return this._state === LifecycleState.Deactivating;
-  }
-
-  public get isDeactivated() {
-    return this._state === LifecycleState.Deactivated;
-  }
-
   public async activate() {
     switch (this._state) {
-      case LifecycleState.Activated:
+      case 'activated':
         return;
-      case LifecycleState.Deactivated:
+      case 'deactivated':
         try {
-          this._state = LifecycleState.Activating;
+          this._state = 'isActivating';
           await this.doActivate();
-          this._state = LifecycleState.Activated;
+          this._state = 'activated';
           return;
         } catch (e) {
-          this._state = LifecycleState.Deactivated;
+          this._state = 'deactivated';
           throw e;
         }
       default:
@@ -77,16 +53,16 @@ export abstract class Activatable implements IActivatable {
 
   public async deactivate() {
     switch (this._state) {
-      case LifecycleState.Deactivated:
+      case 'deactivated':
         return;
-      case LifecycleState.Activated:
+      case 'activated':
         try {
-          this._state = LifecycleState.Deactivating;
+          this._state = 'isDeactivating';
           await this.doDeactivate();
-          this._state = LifecycleState.Deactivated;
+          this._state = 'deactivated';
           return;
         } catch (e) {
-          this._state = LifecycleState.Activated;
+          this._state = 'activated';
           throw e;
         }
       default:
