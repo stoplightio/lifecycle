@@ -17,16 +17,14 @@
 Created with Monodraw
  */
 
-export type LifecycleState = 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating';
-
 export interface IActivatable {
-  readonly state: LifecycleState;
+  readonly state: 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating';
   activate: () => Promise<void>;
   deactivate: () => Promise<void>;
 }
 
 export abstract class Activatable implements IActivatable {
-  private _state: LifecycleState = 'deactivated';
+  private _state: 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating' = 'deactivated';
 
   public get state() {
     return this._state;
