@@ -1,55 +1,43 @@
-/**
- * Created ->- Activating ->- Activated ->- Deactivating ->- Deactivated -------------->----------- Disposed
- *                 |  |                                         |  |                                  |  |
- *                 |  `------------------<----------------------'  `--->--- FailedToDeactivate --->---'  |
- *                 `--------------------->--------- FailedToActivate ------------------>-----------------'
+/*
+┏━━━━━━━━━━━━━━━━━━━━┓                   ┌────────────────────┐
+┃                    ┃                   │                    │
+┃    Deactivated     ┃─────activate─────▶│     Activating     │
+┃                    ┃                   │                    │
+┗━━━━━━━━━━━━━━━━━━━━┛                   └────────────────────┘
+           ▲                                        │
+           │                                        │
+           │                                        │
+           │                                        ▼
+┌────────────────────┐                   ┌────────────────────┐
+│                    │                   │                    │
+│    Deactivating    │◀────deactivate────│     Activated      │
+│                    │                   │                    │
+└────────────────────┘                   └────────────────────┘
+
+Created with Monodraw
  */
 
 export enum LifecycleState {
-  Created = 1,
-  Activating,
-  Activated,
-  Deactivating,
-  Deactivated,
-  Disposed,
-  FailedToActivate,
-  FailedToDeactivate,
+  Deactivated = 'Deactivated',
+  Activating = 'Activating',
+  Activated = 'Activated',
+  Deactivating = 'Deactivating',
 }
 
-const LifecycleDescription = {
-  [LifecycleState.Created]: 'has never activated before',
-  [LifecycleState.Activating]: 'is activating',
-  [LifecycleState.Activated]: 'is activated',
-  [LifecycleState.Deactivating]: 'is deactivating',
-  [LifecycleState.Deactivated]: 'is deactivated',
-  [LifecycleState.Disposed]: 'is disposed',
-  [LifecycleState.FailedToActivate]: 'errored while activating',
-  [LifecycleState.FailedToDeactivate]: 'errored while deactivating',
-};
-
 export interface IActivatable {
-  isCreated: boolean;
   isActivating: boolean;
   isActivated: boolean;
   isDeactivating: boolean;
   isDeactivated: boolean;
-  isFailedToActivate: boolean;
-  isFailedToDeactivate: boolean;
-  isFailed: boolean;
   activate: () => Promise<void>;
   deactivate: () => Promise<void>;
-  disposeActivateable: () => void;
 }
 
 export abstract class Activatable implements IActivatable {
-  private _state: LifecycleState = LifecycleState.Created;
+  private _state: LifecycleState = LifecycleState.Deactivated;
 
   public get state() {
     return this._state;
-  }
-
-  public get isCreated() {
-    return this._state === LifecycleState.Created;
   }
 
   public get isActivating() {
@@ -68,23 +56,10 @@ export abstract class Activatable implements IActivatable {
     return this._state === LifecycleState.Deactivated;
   }
 
-  public get isFailedToActivate() {
-    return this._state === LifecycleState.FailedToActivate;
-  }
-
-  public get isFailedToDeactivate() {
-    return this._state === LifecycleState.FailedToDeactivate;
-  }
-
-  public get isFailed() {
-    return this._state === LifecycleState.FailedToActivate || this._state === LifecycleState.FailedToDeactivate;
-  }
-
   public async activate() {
     switch (this._state) {
       case LifecycleState.Activated:
         return;
-      case LifecycleState.Created:
       case LifecycleState.Deactivated:
         try {
           this._state = LifecycleState.Activating;
@@ -92,11 +67,11 @@ export abstract class Activatable implements IActivatable {
           this._state = LifecycleState.Activated;
           return;
         } catch (e) {
-          this._state = LifecycleState.FailedToActivate;
+          this._state = LifecycleState.Deactivated;
           throw e;
         }
       default:
-        throw new Error(`Cannot activate an Activatable that ${LifecycleDescription[this._state]}`);
+        throw new Error(`Cannot call activate on an Activatable in state '${this._state}'`);
     }
   }
 
@@ -111,16 +86,12 @@ export abstract class Activatable implements IActivatable {
           this._state = LifecycleState.Deactivated;
           return;
         } catch (e) {
-          this._state = LifecycleState.FailedToDeactivate;
+          this._state = LifecycleState.Activated;
           throw e;
         }
       default:
-        throw new Error(`Cannot deactivate an Activatable that ${LifecycleDescription[this._state]}`);
+        throw new Error(`Cannot call deactivate on an Activatable in state '${this._state}'`);
     }
-  }
-
-  public disposeActivateable() {
-    this._state = LifecycleState.Disposed;
   }
 
   protected abstract doActivate(): void | Promise<void>;
