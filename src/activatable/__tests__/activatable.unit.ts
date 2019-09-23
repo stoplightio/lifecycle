@@ -19,33 +19,31 @@ describe('activatable', () => {
 
     const activatable = new MyActivatableThing();
 
-    for (const _ of [0, 1]) {
-      // Initial state
-      expect(activatable.state).toEqual('deactivated');
-      await expect(activatable.deactivate()).resolves.toBeUndefined();
+    // Initial state
+    expect(activatable.state).toEqual('deactivated');
+    await expect(activatable.deactivate()).resolves.toBeUndefined();
 
-      // Activating
-      let promise = activatable.activate();
-      expect(activatable.state).toEqual('isActivating');
-      await expect(activatable.deactivate()).rejects.toThrow();
-      await expect(activatable.activate()).rejects.toThrow();
+    // Activating
+    let promise = activatable.activate();
+    expect(activatable.state).toEqual('isActivating');
+    await expect(activatable.deactivate()).rejects.toThrow();
+    await expect(activatable.activate()).rejects.toThrow();
 
-      // Activated
-      await promise;
-      expect(activatable.state).toEqual('activated');
-      expect(counter).toEqual(1);
+    // Activated
+    await promise;
+    expect(activatable.state).toEqual('activated');
+    expect(counter).toEqual(1);
 
-      // Deactivating
-      promise = activatable.deactivate();
-      expect(activatable.state).toEqual('isDeactivating');
-      await expect(activatable.deactivate()).rejects.toThrow();
-      await expect(activatable.activate()).rejects.toThrow();
+    // Deactivating
+    promise = activatable.deactivate();
+    expect(activatable.state).toEqual('isDeactivating');
+    await expect(activatable.deactivate()).rejects.toThrow();
+    await expect(activatable.activate()).rejects.toThrow();
 
-      // Deactivated
-      await promise;
-      expect(activatable.state).toEqual('deactivated');
-      expect(counter).toEqual(0);
-    }
+    // Deactivated
+    await promise;
+    expect(activatable.state).toEqual('deactivated');
+    expect(counter).toEqual(0);
   });
 
   test('unhappy path (activation fails)', async () => {
