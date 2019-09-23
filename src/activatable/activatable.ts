@@ -68,9 +68,9 @@ export abstract class Activatable implements IActivatable {
     }
   }
 
-  protected abstract doActivate(): void | Promise<void>;
+  protected abstract async doActivate(): Promise<void>;
 
-  protected abstract doDeactivate(): void | Promise<void>;
+  protected abstract async doDeactivate(): Promise<void>;
 }
 
 export interface IActivatableCollection extends IActivatable {
