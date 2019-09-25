@@ -80,7 +80,8 @@ export interface IActivatableCollection extends IActivatable {
   // noop
 }
 
-export class ActivatableCollection<T extends IMinimalActivatable> extends Activatable implements IActivatableCollection {
+export class ActivatableCollection<T extends IMinimalActivatable> extends Activatable
+  implements IActivatableCollection {
   public readonly activatables: T[] = [];
 
   protected async doActivate() {
