@@ -17,10 +17,13 @@
 Created with Monodraw
  */
 
-export interface IActivatable {
-  readonly state: 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating';
+export interface IMinimalActivatable {
   activate: () => Promise<void>;
   deactivate: () => Promise<void>;
+}
+
+export interface IActivatable extends IMinimalActivatable {
+  readonly state: 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating';
 }
 
 export abstract class Activatable implements IActivatable {
@@ -78,7 +81,7 @@ export interface IActivatableCollection extends IActivatable {
 }
 
 export class ActivatableCollection extends Activatable implements IActivatableCollection {
-  public readonly activatables: IActivatable[] = [];
+  public readonly activatables: IMinimalActivatable[] = [];
 
   protected async doActivate() {
     for (const activatable of this.activatables) {
@@ -92,7 +95,7 @@ export class ActivatableCollection extends Activatable implements IActivatableCo
     }
   }
 
-  public push(activatables: IActivatable) {
+  public push(activatables: IMinimalActivatable) {
     this.activatables.push(activatables);
   }
 }
