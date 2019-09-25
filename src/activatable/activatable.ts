@@ -80,8 +80,8 @@ export interface IActivatableCollection extends IActivatable {
   // noop
 }
 
-export class ActivatableCollection extends Activatable implements IActivatableCollection {
-  public readonly activatables: IMinimalActivatable[] = [];
+export class ActivatableCollection<T extends IMinimalActivatable> extends Activatable implements IActivatableCollection {
+  public readonly activatables: T[] = [];
 
   protected async doActivate() {
     for (const activatable of this.activatables) {
@@ -95,7 +95,7 @@ export class ActivatableCollection extends Activatable implements IActivatableCo
     }
   }
 
-  public push(activatables: IMinimalActivatable) {
+  public push(activatables: T) {
     this.activatables.push(activatables);
   }
 }
