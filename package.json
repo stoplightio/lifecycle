@@ -33,14 +33,17 @@
     "test.update": "yarn test --updateSnapshot",
     "test.watch": "yarn test --watch"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "mobx": "~5.13"
+  },
   "dependencies": {
     "strict-event-emitter-types": "^2.0.0",
     "wolfy87-eventemitter": "5.2.6"
   },
   "devDependencies": {
     "@stoplight/scripts": "3.1.x",
-    "typescript": "3.4.5"
+    "typescript": "3.4.5",
+    "mobx": "~5.13"
   },
   "lint-staged": {
     "*.{ts,tsx}$": [
