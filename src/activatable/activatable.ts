@@ -27,7 +27,7 @@ export interface IActivatable extends IMinimalActivatable {
 }
 
 export abstract class Activatable implements IActivatable {
-  private _state: 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating' = 'deactivated';
+  protected _state: 'deactivated' | 'isActivating' | 'activated' | 'isDeactivating' = 'deactivated';
 
   public get state() {
     return this._state;
