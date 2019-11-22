@@ -91,7 +91,7 @@ export class ActivatableCollection<T extends IMinimalActivatable> extends Activa
   }
 
   protected async doDeactivate() {
-    for (const activatable of this.activatables) {
+    for (const activatable of [...this.activatables].reverse()) {
       await activatable.deactivate();
     }
   }

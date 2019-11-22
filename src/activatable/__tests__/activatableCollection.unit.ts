@@ -1,4 +1,5 @@
 import { Activatable, ActivatableCollection } from '../';
+import { ThingWhereOrderMatters } from './__helpers__/ThingWhereOrderMatters';
 
 const sleep = (ms: number) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
@@ -51,6 +52,19 @@ describe('activatable collection', () => {
     expect(b.state).toEqual('deactivated');
   });
 
+  test('deactivate in reverse order of activating', async () => {
+    const activatables = new ActivatableCollection();
+    const orderDeactivated: string[] = [];
+    const a = new ThingWhereOrderMatters(orderDeactivated, 'a');
+    const b = new ThingWhereOrderMatters(orderDeactivated, 'b');
+    activatables.push(a);
+    activatables.push(b);
+
+    await activatables.activate();
+    await activatables.deactivate();
+    expect(orderDeactivated).toEqual(['a', 'b', 'b', 'a']);
+  });
+
   test('unhappy path (one item fails to activate)', async () => {
     const activatables = new ActivatableCollection();
     const a = new ThingThatDoesntFail();
@@ -70,15 +84,18 @@ describe('activatable collection', () => {
     const activatables = new ActivatableCollection();
     const a = new ThingThatDoesntFail();
     const b = new ThingThatFailsToDeactivate();
+    const c = new ThingThatDoesntFail();
     activatables.push(a);
     activatables.push(b);
+    activatables.push(c);
 
     expect(activatables.state).toBe('deactivated');
     await activatables.activate();
     const res = activatables.deactivate();
     await expect(res).rejects.toThrow('fail');
-    expect(a.state).toEqual('deactivated');
+    expect(c.state).toEqual('deactivated');
     expect(b.state).toEqual('activated');
+    expect(a.state).toEqual('activated');
     expect(activatables.state).toEqual('activated');
   });
 });
