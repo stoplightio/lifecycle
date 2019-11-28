@@ -20,6 +20,7 @@
     "node": ">=8.3.0"
   },
   "scripts": {
+    "build": "sl-scripts build",
     "lint": "tslint -p .",
     "lint.fix": "yarn lint --fix",
     "release": "sl-scripts release",
