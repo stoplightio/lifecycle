@@ -57,60 +57,88 @@ describe('emitter', () => {
     expect(onEventFired3).not.toHaveBeenCalled();
   });
 
-  test('createEmitGroup', () => {
-    const onGo1Fired = jest.fn();
-    const onGo2Fired = jest.fn();
-    const onBrakeFired = jest.fn();
+  describe('createEmitGroup', () => {
+    test('works', () => {
+      const onGo1Fired = jest.fn();
+      const onGo2Fired = jest.fn();
+      const onBrakeFired = jest.fn();
 
-    const e: IEventEmitter<{
-      go: (x: string) => void;
-      brake: () => void;
-    }> = new EventEmitter();
+      const e: IEventEmitter<{
+        go: (x: string) => void;
+        brake: () => void;
+      }> = new EventEmitter();
 
-    const go1Disposer = e.on('go', onGo1Fired);
-    e.on('go', onGo2Fired);
-    e.on('brake', onBrakeFired);
+      const go1Disposer = e.on('go', onGo1Fired);
+      e.on('go', onGo2Fired);
+      e.on('brake', onBrakeFired);
 
-    const emitGroup = e.createEmitGroup();
+      const emitGroup = e.createEmitGroup();
 
-    emitGroup.emit('go', 'yo');
-    emitGroup.emit('brake');
+      emitGroup.emit('go', 'yo');
+      emitGroup.emit('brake');
 
-    expect(onGo1Fired).not.toHaveBeenCalled();
-    expect(onGo2Fired).not.toHaveBeenCalled();
-    expect(onBrakeFired).not.toHaveBeenCalled();
+      expect(onGo1Fired).not.toHaveBeenCalled();
+      expect(onGo2Fired).not.toHaveBeenCalled();
+      expect(onBrakeFired).not.toHaveBeenCalled();
 
-    expect(emitGroup.queueCount).toEqual(2);
+      expect(emitGroup.queueCount).toEqual(2);
 
-    emitGroup.flush();
+      emitGroup.flush();
 
-    expect(onGo1Fired).toHaveBeenCalledWith('yo');
-    expect(onGo2Fired).toHaveBeenCalledWith('yo');
-    expect(onBrakeFired).toHaveBeenCalledWith();
-    expect(emitGroup.queueCount).toEqual(0);
+      expect(onGo1Fired).toHaveBeenCalledWith('yo');
+      expect(onGo2Fired).toHaveBeenCalledWith('yo');
+      expect(onBrakeFired).toHaveBeenCalledWith();
+      expect(emitGroup.queueCount).toEqual(0);
 
-    onGo1Fired.mockClear();
-    onGo2Fired.mockClear();
-    onBrakeFired.mockClear();
+      onGo1Fired.mockClear();
+      onGo2Fired.mockClear();
+      onBrakeFired.mockClear();
 
-    // reset
+      // reset
 
-    emitGroup.emit('go', 'yo');
-    expect(emitGroup.queueCount).toEqual(1);
-    emitGroup.reset();
-    expect(emitGroup.queueCount).toEqual(0);
+      emitGroup.emit('go', 'yo');
+      expect(emitGroup.queueCount).toEqual(1);
+      emitGroup.reset();
+      expect(emitGroup.queueCount).toEqual(0);
 
-    onGo1Fired.mockClear();
-    onGo2Fired.mockClear();
-    onBrakeFired.mockClear();
+      onGo1Fired.mockClear();
+      onGo2Fired.mockClear();
+      onBrakeFired.mockClear();
 
-    // disposed listener
+      // disposed listener
 
-    go1Disposer.dispose();
-    emitGroup.emit('go', 'yo');
-    emitGroup.flush();
-    expect(onGo1Fired).not.toHaveBeenCalled();
-    expect(onGo2Fired).toHaveBeenCalledWith('yo');
-    expect(emitGroup.queueCount).toEqual(0);
+      go1Disposer.dispose();
+      emitGroup.emit('go', 'yo');
+      emitGroup.flush();
+      expect(onGo1Fired).not.toHaveBeenCalled();
+      expect(onGo2Fired).toHaveBeenCalledWith('yo');
+      expect(emitGroup.queueCount).toEqual(0);
+    });
+
+    test('continues even if a listener throws an error', () => {
+      const onGoFired = jest.fn();
+      const onThrowFired = jest.fn(() => {
+        throw new Error('stop');
+      });
+
+      const e = new EventEmitter();
+
+      const emitGroup = e.createEmitGroup();
+
+      e.on('go', onGoFired);
+      e.on('throw', onThrowFired);
+
+      emitGroup.emit('go', 'yo');
+      emitGroup.emit('throw');
+      emitGroup.emit('go', 'yo2');
+      emitGroup.flush();
+
+      expect(onGoFired).toHaveBeenCalledTimes(2);
+      expect(onGoFired).toHaveBeenCalledWith('yo');
+      expect(onGoFired).toHaveBeenCalledWith('yo2');
+
+      expect(onThrowFired).toHaveBeenCalled();
+      expect(onThrowFired).toThrowError();
+    });
   });
 });

@@ -71,7 +71,11 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
 
       flush() {
         for (const [event, args] of eventQueue) {
-          notifier.emit(event, ...args);
+          try {
+            notifier.emit(event, ...args);
+          } catch (e) {
+            // noop
+          }
         }
 
         this.reset();
