@@ -67,10 +67,5 @@
   },
   "release": {
     "extends": "@stoplight/scripts/release"
-  },
-  "prettier": {
-    "printWidth": 120,
-    "trailingComma": "es5",
-    "singleQuote": true
   }
 }

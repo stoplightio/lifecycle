@@ -58,14 +58,14 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
   } {
     const notifier = this;
 
-    let eventQueue: Array<[unknown, Array<unknown>]> = [];
+    const eventQueue: Array<[string, Array<unknown>]> = [];
 
     return {
       get queueCount() {
         return eventQueue.length;
       },
 
-      emit(event: any, ...args: any) {
+      emit(event: string, ...args: any) {
         eventQueue.push([event, args]);
       },
 
@@ -82,7 +82,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
       },
 
       reset() {
-        eventQueue = [];
+        eventQueue.length = 0;
       },
     };
   }
