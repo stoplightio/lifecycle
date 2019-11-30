@@ -13,7 +13,7 @@ export interface IEventEmitter<E extends object> extends StrictEventEmitter<IEve
 
 export interface IEventEmitterInstance extends IDisposable {
   on(type: number | string, listener: any): IDisposable;
-  emit<A extends Array<unknown> = Array<unknown>>(type: number | string, ...args: A): void;
+  emit<A extends unknown[] = unknown[]>(type: number | string, ...args: A): void;
   hasListeners: boolean;
 }
 
@@ -27,7 +27,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
     });
   }
 
-  public emit(type: unknown, ...args: Array<unknown>): void {
+  public emit(type: unknown, ...args: unknown[]): void {
     this._emitter.trigger(String(type), args);
   }
 
@@ -58,7 +58,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
   } {
     const notifier = this;
 
-    const eventQueue: Array<[string, Array<unknown>]> = [];
+    const eventQueue: Array<[string, unknown[]]> = [];
     let flushed = false;
 
     return {
