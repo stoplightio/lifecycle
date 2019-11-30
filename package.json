@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "strict-event-emitter-types": "^2.0.0",
-    "wolfy87-eventemitter": "~5.2.6"
+    "wolfy87-eventemitter": "~5.2.8"
   },
   "devDependencies": {
     "@stoplight/scripts": "^5",
