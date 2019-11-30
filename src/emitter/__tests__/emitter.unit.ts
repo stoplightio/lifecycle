@@ -84,6 +84,7 @@ describe('emitter', () => {
       expect(emitGroup.queueCount).toEqual(2);
 
       emitGroup.flush();
+      emitGroup.reset();
 
       expect(onGo1Fired).toHaveBeenCalledWith('yo');
       expect(onGo2Fired).toHaveBeenCalledWith('yo');
@@ -139,6 +140,24 @@ describe('emitter', () => {
 
       expect(onThrowFired).toHaveBeenCalled();
       expect(onThrowFired).toThrowError();
+    });
+
+    test('emits events immediately if previously flushed', () => {
+      const onGoFired = jest.fn();
+
+      const e = new EventEmitter();
+
+      const emitGroup = e.createEmitGroup();
+
+      e.on('go', onGoFired);
+
+      emitGroup.emit('go', 'yo');
+      emitGroup.flush();
+
+      expect(onGoFired).toHaveBeenCalledTimes(1);
+
+      emitGroup.emit('go', 'yo');
+      expect(onGoFired).toHaveBeenCalledTimes(2);
     });
   });
 });

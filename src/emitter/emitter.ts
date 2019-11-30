@@ -59,6 +59,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
     const notifier = this;
 
     const eventQueue: Array<[string, Array<unknown>]> = [];
+    let flushed = false;
 
     return {
       get queueCount() {
@@ -66,7 +67,12 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
       },
 
       emit(event: string, ...args: any) {
-        eventQueue.push([event, args]);
+        // if we've already flushed this group, emit any subsequent events immediately
+        if (flushed) {
+          notifier.emit(event, ...args);
+        } else {
+          eventQueue.push([event, args]);
+        }
       },
 
       flush() {
@@ -79,10 +85,12 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
         }
 
         this.reset();
+        flushed = true;
       },
 
       reset() {
         eventQueue.length = 0;
+        flushed = false;
       },
     };
   }
