@@ -20,7 +20,7 @@ describe('disposable', () => {
     disposables.push(
       createDisposable(() => {
         delete funcs.count;
-      })
+      }),
     );
 
     // let disposeEventFired = false;

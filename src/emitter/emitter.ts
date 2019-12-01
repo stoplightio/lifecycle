@@ -1,7 +1,21 @@
 import StrictEventEmitter from 'strict-event-emitter-types';
 import Emitter = require('wolfy87-eventemitter');
 import { createDisposable, IDisposable } from '../disposable';
-import { IEventEmitter, IEventEmitterInstance } from './types';
+
+export interface IEventEmitter<E extends object> extends StrictEventEmitter<IEventEmitterInstance, E> {
+  createEmitGroup(): {
+    queueCount: number;
+    emit: IEventEmitter<E>['emit'];
+    flush: () => void;
+    reset: () => void;
+  };
+}
+
+export interface IEventEmitterInstance extends IDisposable {
+  on(type: number | string, listener: any): IDisposable;
+  emit<A extends unknown[] = unknown[]>(type: number | string, ...args: A): void;
+  hasListeners: boolean;
+}
 
 export class EventEmitter<E extends object> implements IEventEmitter<E> {
   private _emitter = new Emitter();
@@ -13,7 +27,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
     });
   }
 
-  public emit(type: unknown, ...args: Array<unknown>): void {
+  public emit(type: unknown, ...args: unknown[]): void {
     this._emitter.trigger(String(type), args);
   }
 
@@ -34,6 +48,51 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
 
   public dispose() {
     this._emitter.removeAllListeners();
+  }
+
+  public createEmitGroup(): {
+    queueCount: number;
+    emit: EventEmitter<E>['emit'];
+    flush: () => void;
+    reset: () => void;
+  } {
+    const notifier = this;
+
+    const eventQueue: Array<[string, unknown[]]> = [];
+    let flushed = false;
+
+    return {
+      get queueCount() {
+        return eventQueue.length;
+      },
+
+      emit(event: string, ...args: any) {
+        // if we've already flushed this group, emit any subsequent events immediately
+        if (flushed) {
+          notifier.emit(event, ...args);
+        } else {
+          eventQueue.push([event, args]);
+        }
+      },
+
+      flush() {
+        for (const [event, args] of eventQueue) {
+          try {
+            notifier.emit(event, ...args);
+          } catch (e) {
+            // noop
+          }
+        }
+
+        this.reset();
+        flushed = true;
+      },
+
+      reset() {
+        eventQueue.length = 0;
+        flushed = false;
+      },
+    };
   }
 }
 

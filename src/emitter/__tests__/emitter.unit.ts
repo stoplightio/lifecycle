@@ -1,4 +1,4 @@
-import { EventEmitter } from '..';
+import { EventEmitter, IEventEmitter } from '..';
 
 describe('emitter', () => {
   test('emit', () => {
@@ -55,5 +55,109 @@ describe('emitter', () => {
     expect(onEventFired1).not.toHaveBeenCalled();
     expect(onEventFired2).not.toHaveBeenCalled();
     expect(onEventFired3).not.toHaveBeenCalled();
+  });
+
+  describe('createEmitGroup', () => {
+    test('works', () => {
+      const onGo1Fired = jest.fn();
+      const onGo2Fired = jest.fn();
+      const onBrakeFired = jest.fn();
+
+      const e: IEventEmitter<{
+        go: (x: string) => void;
+        brake: () => void;
+      }> = new EventEmitter();
+
+      const go1Disposer = e.on('go', onGo1Fired);
+      e.on('go', onGo2Fired);
+      e.on('brake', onBrakeFired);
+
+      const emitGroup = e.createEmitGroup();
+
+      emitGroup.emit('go', 'yo');
+      emitGroup.emit('brake');
+
+      expect(onGo1Fired).not.toHaveBeenCalled();
+      expect(onGo2Fired).not.toHaveBeenCalled();
+      expect(onBrakeFired).not.toHaveBeenCalled();
+
+      expect(emitGroup.queueCount).toEqual(2);
+
+      emitGroup.flush();
+      emitGroup.reset();
+
+      expect(onGo1Fired).toHaveBeenCalledWith('yo');
+      expect(onGo2Fired).toHaveBeenCalledWith('yo');
+      expect(onBrakeFired).toHaveBeenCalledWith();
+      expect(emitGroup.queueCount).toEqual(0);
+
+      onGo1Fired.mockClear();
+      onGo2Fired.mockClear();
+      onBrakeFired.mockClear();
+
+      // reset
+
+      emitGroup.emit('go', 'yo');
+      expect(emitGroup.queueCount).toEqual(1);
+      emitGroup.reset();
+      expect(emitGroup.queueCount).toEqual(0);
+
+      onGo1Fired.mockClear();
+      onGo2Fired.mockClear();
+      onBrakeFired.mockClear();
+
+      // disposed listener
+
+      go1Disposer.dispose();
+      emitGroup.emit('go', 'yo');
+      emitGroup.flush();
+      expect(onGo1Fired).not.toHaveBeenCalled();
+      expect(onGo2Fired).toHaveBeenCalledWith('yo');
+      expect(emitGroup.queueCount).toEqual(0);
+    });
+
+    test('continues even if a listener throws an error', () => {
+      const onGoFired = jest.fn();
+      const onThrowFired = jest.fn(() => {
+        throw new Error('stop');
+      });
+
+      const e = new EventEmitter();
+
+      const emitGroup = e.createEmitGroup();
+
+      e.on('go', onGoFired);
+      e.on('throw', onThrowFired);
+
+      emitGroup.emit('go', 'yo');
+      emitGroup.emit('throw');
+      emitGroup.emit('go', 'yo2');
+      emitGroup.flush();
+
+      expect(onGoFired).toHaveBeenCalledTimes(2);
+      expect(onGoFired).toHaveBeenCalledWith('yo');
+      expect(onGoFired).toHaveBeenCalledWith('yo2');
+
+      expect(onThrowFired).toHaveBeenCalled();
+      expect(onThrowFired).toThrowError();
+    });
+
+    test('emits events immediately if previously flushed', () => {
+      const onGoFired = jest.fn();
+
+      const e = new EventEmitter();
+
+      const emitGroup = e.createEmitGroup();
+
+      e.on('go', onGoFired);
+
+      emitGroup.emit('go', 'yo');
+      emitGroup.flush();
+
+      expect(onGoFired).toHaveBeenCalledTimes(1);
+
+      emitGroup.emit('go', 'yo');
+      expect(onGoFired).toHaveBeenCalledTimes(2);
+    });
   });
 });

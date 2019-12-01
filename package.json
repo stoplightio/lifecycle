@@ -21,30 +21,31 @@
   },
   "scripts": {
     "build": "sl-scripts build",
-    "build.docs": "sl-scripts build:typedoc",
-    "commit": "git-cz",
-    "lint": "sl-scripts lint",
+    "lint": "tslint -p .",
     "lint.fix": "yarn lint --fix",
     "release": "sl-scripts release",
-    "release.docs": "sl-scripts release:docs",
     "release.dryRun": "sl-scripts release --dry-run --debug",
-    "test": "sl-scripts test",
+    "test": "jest",
     "test.prod": "yarn lint && yarn test --coverage --no-cache",
     "test.update": "yarn test --updateSnapshot",
     "test.watch": "yarn test --watch"
   },
-  "peerDependencies": {},
   "dependencies": {
     "strict-event-emitter-types": "^2.0.0",
-    "wolfy87-eventemitter": "5.2.6"
+    "wolfy87-eventemitter": "~5.2.8"
   },
   "devDependencies": {
-    "@stoplight/scripts": "3.1.x",
-    "typescript": "3.4.5"
+    "@stoplight/scripts": "^5",
+    "@types/jest": "^24.0.23",
+    "jest": "^24.9",
+    "ts-jest": "^24.2",
+    "tslint": "^5.20",
+    "tslint-config-stoplight": "~1.4",
+    "typescript": "3.7.2"
   },
   "lint-staged": {
     "*.{ts,tsx}$": [
-      "yarn lint.fix",
+      "tslint -p tsconfig.json --fix",
       "git add"
     ]
   },
