@@ -2,13 +2,15 @@ import StrictEventEmitter from 'strict-event-emitter-types';
 import Emitter = require('wolfy87-eventemitter');
 import { createDisposable, IDisposable } from '../disposable';
 
+export interface IEmitGroup<E extends object> {
+  queueCount: number;
+  emit: EventEmitter<E>['emit'];
+  flush: () => void;
+  reset: () => void;
+}
+
 export interface IEventEmitter<E extends object> extends StrictEventEmitter<IEventEmitterInstance, E> {
-  createEmitGroup(): {
-    queueCount: number;
-    emit: IEventEmitter<E>['emit'];
-    flush: () => void;
-    reset: () => void;
-  };
+  createEmitGroup(): IEmitGroup<E>;
 }
 
 export interface IEventEmitterInstance extends IDisposable {
@@ -50,12 +52,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
     this._emitter.removeAllListeners();
   }
 
-  public createEmitGroup(): {
-    queueCount: number;
-    emit: EventEmitter<E>['emit'];
-    flush: () => void;
-    reset: () => void;
-  } {
+  public createEmitGroup(): IEmitGroup<E> {
     const notifier = this;
 
     const eventQueue: Array<[string, unknown[]]> = [];
