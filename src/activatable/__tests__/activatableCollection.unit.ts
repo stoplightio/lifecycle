@@ -75,7 +75,7 @@ describe('activatable collection', () => {
     expect(activatables.state).toBe('deactivated');
     const res = activatables.activate();
     await expect(res).rejects.toThrow('fail');
-    expect(a.state).toEqual('activated');
+    expect(a.state).toEqual('deactivated');
     expect(b.state).toEqual('deactivated');
     expect(activatables.state).toEqual('deactivated');
   });

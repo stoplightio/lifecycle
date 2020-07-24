@@ -85,8 +85,22 @@ export class ActivatableCollection<T extends IMinimalActivatable> extends Activa
   public readonly activatables: T[] = [];
 
   protected async doActivate() {
-    for (const activatable of this.activatables) {
-      await activatable.activate();
+    const activated: T[] = [];
+    try {
+      for (const activatable of this.activatables) {
+        await activatable.activate();
+        activated.push(activatable);
+      }
+    } catch (e) {
+      activated.reverse();
+      for (const activatable of activated) {
+        try {
+          await activatable.deactivate();
+        } catch (_) {
+          // noop
+        }
+      }
+      throw e;
     }
   }
 
