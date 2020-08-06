@@ -1,12 +1,12 @@
-import { createDisposable, DisposableCollection } from '../';
+import { AsyncDisposableCollection, createAsyncDisposable } from '../';
 
 type MaybeCounter = {
   count?: () => void;
 };
 
 describe('disposable', () => {
-  test('DisposableCollection', () => {
-    const disposables = new DisposableCollection();
+  test('AsyncDisposableCollection', async () => {
+    const disposables = new AsyncDisposableCollection();
 
     let counter = 0;
     const funcs: MaybeCounter = {
@@ -22,8 +22,13 @@ describe('disposable', () => {
     };
 
     disposables.push(
-      createDisposable(() => {
-        delete funcs.count;
+      createAsyncDisposable(() => {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            delete funcs.count;
+            resolve();
+          }, 10);
+        });
       }),
     );
 
@@ -33,9 +38,11 @@ describe('disposable', () => {
     doCount();
     expect(counter).toEqual(2);
 
-    disposables.dispose();
-
+    const promise = disposables.dispose();
+    expect(disposables.disposed).toEqual(false);
+    await promise;
     expect(disposables.disposed).toEqual(true);
+
     doCount();
     expect(counter).toEqual(2);
   });
