@@ -9,7 +9,7 @@ export class AsyncDisposableSet implements IAsyncDisposable {
 
   public async dispose(): Promise<void> {
     while (!this.disposed) {
-      await Promise.all([...this.disposables].map(disposable => disposable.dispose()))
+      await Promise.all([...this.disposables].map(disposable => disposable.dispose()));
     }
   }
 

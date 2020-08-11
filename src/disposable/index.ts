@@ -1,9 +1,9 @@
 export * from './types';
 
-export * from './AsyncDisposable';
+export * from './AsyncDisposer';
 export * from './AsyncDisposableSet';
 
-export * from './Disposable';
+export * from './Disposer';
 export * from './DisposableSet';
 
 // Older disposable utils

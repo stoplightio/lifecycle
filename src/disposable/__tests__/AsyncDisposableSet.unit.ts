@@ -1,4 +1,4 @@
-import { AsyncDisposable, AsyncDisposableSet } from '../';
+import { AsyncDisposableSet, AsyncDisposer } from '../';
 
 type MaybeCounter = {
   count?: () => void;
@@ -22,7 +22,7 @@ describe('AsyncDisposableCollection', () => {
     };
 
     disposables.push(
-      new AsyncDisposable(() => {
+      new AsyncDisposer(() => {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             delete funcs.count;
@@ -53,7 +53,7 @@ describe('AsyncDisposableCollection', () => {
     let time2 = 0;
 
     disposables.push(
-      new AsyncDisposable(() => {
+      new AsyncDisposer(() => {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             time1 = Date.now();
@@ -64,7 +64,7 @@ describe('AsyncDisposableCollection', () => {
     );
 
     disposables.push(
-      new AsyncDisposable(() => {
+      new AsyncDisposer(() => {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             time2 = Date.now();

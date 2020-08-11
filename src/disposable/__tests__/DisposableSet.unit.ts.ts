@@ -1,4 +1,4 @@
-import { Disposable, DisposableSet } from '../';
+import { DisposableSet, Disposer } from '../';
 
 type MaybeCounter = {
   count?: () => void;
@@ -22,7 +22,7 @@ describe('disposable', () => {
     };
 
     disposables.push(
-      new Disposable(() => {
+      new Disposer(() => {
         delete funcs.count;
       }),
     );

@@ -1,5 +1,5 @@
 import { IDisposable } from './types';
 
-export class Disposable implements IDisposable {
+export class Disposer implements IDisposable {
   constructor(public dispose: () => void) {}
 }
