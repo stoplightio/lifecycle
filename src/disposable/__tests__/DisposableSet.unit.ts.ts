@@ -1,11 +1,15 @@
-import { createDisposable, DisposableCollection } from '../';
+import { DisposableSet, Disposer } from '../';
+
+type MaybeCounter = {
+  count?: () => void;
+};
 
 describe('disposable', () => {
-  test('collection', () => {
-    const disposables = new DisposableCollection();
+  test('DisposableSet', () => {
+    const disposables = new DisposableSet();
 
     let counter = 0;
-    const funcs = {
+    const funcs: MaybeCounter = {
       count: () => {
         counter += 1;
       },
@@ -18,15 +22,10 @@ describe('disposable', () => {
     };
 
     disposables.push(
-      createDisposable(() => {
+      new Disposer(() => {
         delete funcs.count;
       }),
     );
-
-    // let disposeEventFired = false;
-    // disposables.onDispose(() => {
-    //   disposeEventFired = true;
-    // });
 
     expect(disposables.disposed).toEqual(false);
     doCount();
@@ -39,6 +38,5 @@ describe('disposable', () => {
     expect(disposables.disposed).toEqual(true);
     doCount();
     expect(counter).toEqual(2);
-    // expect(disposeEventFired).toEqual(true);
   });
 });
