@@ -1,13 +1,26 @@
 import { IDisposable } from './types';
 
-const noop = () => {
-  throw new Error('Already disposed');
+const nope = () => {
+  console.warn('Already disposed');
 };
 
-export class Disposer implements IDisposable {
-  constructor(private _dispose: () => void) {}
-  public dispose() {
-    this._dispose();
-    this._dispose = noop;
-  }
+declare class Disposer implements IDisposable {
+  constructor(dispose: () => void);
+  public dispose(): void;
+  public disposed: boolean;
 }
+
+function Disposer(_dispose: () => void): Disposer {
+  const self: Disposer = {
+    dispose() {
+      _dispose();
+      self.dispose = nope;
+    },
+    get disposed() {
+      return self.dispose === nope;
+    },
+  };
+  return self;
+}
+
+export { Disposer };
