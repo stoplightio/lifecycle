@@ -11,8 +11,7 @@ declare class Disposer implements IDisposable {
   public add(dispose: DisposeFn): void;
 }
 
-function Disposer(dispose: DisposeFn): Disposer {
-  let _dispose: DisposeFn | undefined = dispose;
+function Disposer(dispose: DisposeFn | undefined): Disposer {
   const self = Object.defineProperties(
     {},
     {
@@ -20,38 +19,38 @@ function Disposer(dispose: DisposeFn): Disposer {
         enumerable: true,
         configurable: true,
         value() {
-          if (!_dispose) {
+          if (!dispose) {
             console.warn('Already disposed');
           } else {
-            _dispose();
-            const callbacks = listeners.get(_dispose);
+            dispose();
+            const callbacks = listeners.get(dispose);
             if (callbacks) {
               for (const callback of callbacks) {
                 callback();
                 callbacks.delete(callback);
               }
             }
-            _dispose = void 0;
+            dispose = void 0;
           }
         },
       },
       disposed: {
         enumerable: true,
         get() {
-          return !_dispose;
+          return !dispose;
         },
       },
       add: {
         enumerable: true,
         value(callback: DisposeFn) {
-          if (!_dispose) {
+          if (!dispose) {
             console.warn('Cannot add callback to an already disposed listener');
             return;
           }
-          if (!listeners.has(_dispose)) {
-            listeners.set(_dispose, new Set());
+          if (!listeners.has(dispose)) {
+            listeners.set(dispose, new Set());
           }
-          listeners.get(_dispose)!.add(callback);
+          listeners.get(dispose)!.add(callback);
         },
       },
     },

@@ -11,8 +11,7 @@ declare class AsyncDisposer implements IAsyncDisposable {
   public add(dispose: () => void): void;
 }
 
-function AsyncDisposer(dispose: DisposeFn): AsyncDisposer {
-  let _dispose: DisposeFn | undefined = dispose;
+function AsyncDisposer(dispose: DisposeFn | undefined): AsyncDisposer {
   const self: AsyncDisposer = Object.defineProperties(
     {},
     {
@@ -20,11 +19,11 @@ function AsyncDisposer(dispose: DisposeFn): AsyncDisposer {
         enumerable: true,
         configurable: true,
         async value() {
-          if (!_dispose) {
+          if (!dispose) {
             console.warn('Already disposed');
           } else {
-            await _dispose();
-            const callbacks = listeners.get(_dispose);
+            await dispose();
+            const callbacks = listeners.get(dispose);
             if (callbacks) {
               await Promise.all(
                 [...callbacks].map(async callback => {
@@ -33,27 +32,27 @@ function AsyncDisposer(dispose: DisposeFn): AsyncDisposer {
                 }),
               );
             }
-            _dispose = void 0;
+            dispose = void 0;
           }
         },
       },
       disposed: {
         enumerable: true,
         get() {
-          return !_dispose;
+          return !dispose;
         },
       },
       add: {
         enumerable: true,
         value(callback: DisposeFn) {
-          if (!_dispose) {
+          if (!dispose) {
             console.warn('Cannot add callback to an already disposed listener');
             return;
           }
-          if (!listeners.has(_dispose)) {
-            listeners.set(_dispose, new Set());
+          if (!listeners.has(dispose)) {
+            listeners.set(dispose, new Set());
           }
-          listeners.get(_dispose)!.add(callback);
+          listeners.get(dispose)!.add(callback);
         },
       },
     },
