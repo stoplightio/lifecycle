@@ -4,7 +4,7 @@ type MaybeCounter = {
   count?: () => void;
 };
 
-describe('AsyncDisposableCollection', () => {
+describe('AsyncDisposableSet', () => {
   test('basics', async () => {
     const disposables = new AsyncDisposableSet();
 
@@ -46,6 +46,20 @@ describe('AsyncDisposableCollection', () => {
     doCount();
     expect(counter).toEqual(2);
   });
+
+  test('is removed from set if externally disposed', async () => {
+    const disposables = new AsyncDisposableSet();
+
+    const disposer = new AsyncDisposer(() => void 0);
+
+    disposables.push(disposer);
+    expect(disposables.disposed).toEqual(false);
+
+    await disposer.dispose();
+    expect(disposables.disposed).toEqual(true);
+  });
+
+
   test('disposes concurrently', async () => {
     const disposables = new AsyncDisposableSet();
 

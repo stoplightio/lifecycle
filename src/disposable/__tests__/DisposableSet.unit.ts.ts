@@ -4,8 +4,8 @@ type MaybeCounter = {
   count?: () => void;
 };
 
-describe('disposable', () => {
-  test('DisposableSet', () => {
+describe('DisposableSet', () => {
+  test('basics', () => {
     const disposables = new DisposableSet();
 
     let counter = 0;
@@ -38,5 +38,17 @@ describe('disposable', () => {
     expect(disposables.disposed).toEqual(true);
     doCount();
     expect(counter).toEqual(2);
+  });
+
+  test('is removed from set if externally disposed', () => {
+    const disposables = new DisposableSet();
+
+    const disposer = new Disposer(() => void 0);
+
+    disposables.push(disposer);
+    expect(disposables.disposed).toEqual(false);
+
+    disposer.dispose();
+    expect(disposables.disposed).toEqual(true);
   });
 });
