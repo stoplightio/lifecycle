@@ -1,3 +1,4 @@
+import { AsyncDisposer } from './AsyncDisposer';
 import { IAsyncDisposable } from './types';
 
 export class AsyncDisposableSet implements IAsyncDisposable {
@@ -13,20 +14,13 @@ export class AsyncDisposableSet implements IAsyncDisposable {
     }
   }
 
-  public push(disposable: IAsyncDisposable): IAsyncDisposable {
-    this.disposables.add(disposable);
-
-    const originalDispose = disposable.dispose.bind(disposable);
-
-    disposable.dispose = async () => {
-      await originalDispose();
-      this.disposables.delete(disposable);
-    };
-
-    return disposable;
+  public push(disposer: AsyncDisposer): AsyncDisposer {
+    this.disposables.add(disposer);
+    disposer.add(() => this.disposables.delete(disposer));
+    return disposer;
   }
 
-  public pushAll(disposables: IAsyncDisposable[]): IAsyncDisposable[] {
+  public pushAll(disposables: AsyncDisposer[]): AsyncDisposer[] {
     return disposables.map(disposable => this.push(disposable));
   }
 }

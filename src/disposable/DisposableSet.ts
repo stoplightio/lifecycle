@@ -1,3 +1,4 @@
+import { Disposer } from './Disposer';
 import { IDisposable } from './types';
 
 export class DisposableSet implements IDisposable {
@@ -13,20 +14,13 @@ export class DisposableSet implements IDisposable {
     }
   }
 
-  public push(disposable: IDisposable): IDisposable {
-    this.disposables.add(disposable);
-
-    const originalDispose = disposable.dispose.bind(disposable);
-
-    disposable.dispose = () => {
-      originalDispose();
-      this.disposables.delete(disposable);
-    };
-
-    return disposable;
+  public push(disposer: Disposer): Disposer {
+    this.disposables.add(disposer);
+    disposer.add(() => this.disposables.delete(disposer));
+    return disposer;
   }
 
-  public pushAll(disposables: IDisposable[]): IDisposable[] {
+  public pushAll(disposables: Disposer[]): Disposer[] {
     return disposables.map(disposable => this.push(disposable));
   }
 }
