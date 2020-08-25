@@ -1,12 +1,12 @@
-import { AsyncDisposableSet, AsyncDisposer } from '../';
+import { AsyncDisposerSet, AsyncDisposer } from '../';
 
 type MaybeCounter = {
   count?: () => void;
 };
 
-describe('AsyncDisposableSet', () => {
+describe('AsyncDisposerSet', () => {
   test('basics', async () => {
-    const disposables = new AsyncDisposableSet();
+    const disposables = new AsyncDisposerSet();
 
     let counter = 0;
     const funcs: MaybeCounter = {
@@ -48,7 +48,7 @@ describe('AsyncDisposableSet', () => {
   });
 
   test('is removed from set if externally disposed', async () => {
-    const disposables = new AsyncDisposableSet();
+    const disposables = new AsyncDisposerSet();
 
     const disposer = new AsyncDisposer(() => void 0);
 
@@ -61,7 +61,7 @@ describe('AsyncDisposableSet', () => {
 
 
   test('disposes concurrently', async () => {
-    const disposables = new AsyncDisposableSet();
+    const disposables = new AsyncDisposerSet();
 
     let time1 = 0;
     let time2 = 0;

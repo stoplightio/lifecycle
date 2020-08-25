@@ -1,12 +1,12 @@
-import { DisposableSet, Disposer } from '../';
+import { DisposerSet, Disposer } from '../';
 
 type MaybeCounter = {
   count?: () => void;
 };
 
-describe('DisposableSet', () => {
+describe('DisposerSet', () => {
   test('basics', () => {
-    const disposables = new DisposableSet();
+    const disposables = new DisposerSet();
 
     let counter = 0;
     const funcs: MaybeCounter = {
@@ -41,7 +41,7 @@ describe('DisposableSet', () => {
   });
 
   test('is removed from set if externally disposed', () => {
-    const disposables = new DisposableSet();
+    const disposables = new DisposerSet();
 
     const disposer = new Disposer(() => void 0);
 

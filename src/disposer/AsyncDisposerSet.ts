@@ -1,7 +1,7 @@
 import { AsyncDisposer } from './AsyncDisposer';
 import { IAsyncDisposable } from './types';
 
-export class AsyncDisposableSet implements IAsyncDisposable {
+export class AsyncDisposerSet implements IAsyncDisposable {
   protected readonly disposables: Set<IAsyncDisposable> = new Set();
 
   get disposed(): boolean {

@@ -1,7 +1,7 @@
 import { Disposer } from './Disposer';
 import { IDisposable } from './types';
 
-export class DisposableSet implements IDisposable {
+export class DisposerSet implements IDisposable {
   protected readonly disposables: Set<IDisposable> = new Set();
 
   get disposed(): boolean {
