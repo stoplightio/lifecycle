@@ -1,4 +1,4 @@
-import { AsyncDisposerSet, AsyncDisposer } from '../';
+import { AsyncDisposer, AsyncDisposerSet } from '../';
 
 type MaybeCounter = {
   count?: () => void;
@@ -58,7 +58,6 @@ describe('AsyncDisposerSet', () => {
     await disposer.dispose();
     expect(disposables.disposed).toEqual(true);
   });
-
 
   test('disposes concurrently', async () => {
     const disposables = new AsyncDisposerSet();

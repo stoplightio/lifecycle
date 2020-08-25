@@ -1,4 +1,4 @@
-import { DisposerSet, Disposer } from '../';
+import { Disposer, DisposerSet } from '../';
 
 type MaybeCounter = {
   count?: () => void;

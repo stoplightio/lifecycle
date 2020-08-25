@@ -26,12 +26,11 @@ describe('AsyncDisposer', () => {
     expect(consoleSpy).toBeCalledWith('Already disposed');
   });
 
-
   test('AsyncDisposer + callback', async () => {
     let counter = 0;
 
     const disposable = new AsyncDisposer(() => {
-      counter++
+      counter++;
     });
 
     disposable.add(() => counter++);
@@ -52,7 +51,7 @@ describe('AsyncDisposer', () => {
     let counter = 0;
 
     const disposable = new AsyncDisposer(() => {
-      counter++
+      counter++;
     });
 
     for (let i = 0; i < 10; i++) {

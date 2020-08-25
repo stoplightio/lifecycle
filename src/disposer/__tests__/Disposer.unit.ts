@@ -64,7 +64,6 @@ describe('Disposer', () => {
     expect(consoleSpy).toBeCalledWith('Cannot add callback to an already disposed listener');
   });
 
-
   afterAll(() => {
     consoleSpy.mockRestore();
   });
