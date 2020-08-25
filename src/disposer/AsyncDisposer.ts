@@ -1,3 +1,4 @@
+import { catchAllPromises } from './catchAllPromises';
 import { IAsyncDisposable } from './types';
 
 const listeners = new WeakMap<DisposeFn, Set<DisposeFn>>();
@@ -25,11 +26,12 @@ function AsyncDisposer(dispose: DisposeFn | undefined): AsyncDisposer {
             await dispose();
             const callbacks = listeners.get(dispose);
             if (callbacks) {
-              await Promise.all(
+              await catchAllPromises(
                 [...callbacks].map(async callback => {
                   await callback();
                   callbacks.delete(callback);
                 }),
+                'Callback(s) threw errors',
               );
             }
             dispose = void 0;

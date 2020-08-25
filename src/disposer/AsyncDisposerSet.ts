@@ -1,4 +1,5 @@
 import { AsyncDisposer } from './AsyncDisposer';
+import { catchAllPromises } from './catchAllPromises';
 import { IAsyncDisposable } from './types';
 
 export class AsyncDisposerSet implements IAsyncDisposable {
@@ -10,7 +11,10 @@ export class AsyncDisposerSet implements IAsyncDisposable {
 
   public async dispose(): Promise<void> {
     while (!this.disposed) {
-      await Promise.all([...this.disposables].map(disposable => disposable.dispose()));
+      await catchAllPromises(
+        [...this.disposables].map(async disposable => await disposable.dispose()),
+        'call(s) to dispose threw',
+      );
     }
   }
 

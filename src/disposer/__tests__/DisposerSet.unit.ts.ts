@@ -51,4 +51,22 @@ describe('DisposerSet', () => {
     disposer.dispose();
     expect(disposables.disposed).toEqual(true);
   });
+
+  test('throws if one or more disposers throw', () => {
+    const disposables = new DisposerSet();
+
+    const disposer1 = new Disposer(() => void 0);
+    const disposer2 = new Disposer(() => {
+      throw new Error('Fail');
+    });
+    const disposer3 = new Disposer(() => void 0);
+    const disposer4 = new Disposer(() => {
+      throw new Error('Fail');
+    });
+
+    disposables.pushAll([disposer1, disposer2, disposer3, disposer4]);
+    expect(disposables.disposed).toEqual(false);
+
+    expect(() => disposables.dispose()).toThrow('call(s) to dispose threw');
+  });
 });

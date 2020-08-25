@@ -1,4 +1,5 @@
 import { AsyncDisposer, AsyncDisposerSet } from '../';
+import { AggregateError } from '../AggregateError';
 
 type MaybeCounter = {
   count?: () => void;
@@ -91,5 +92,31 @@ describe('AsyncDisposerSet', () => {
     await disposables.dispose();
     expect(time1).toEqual(time2);
     expect(disposables.disposed).toEqual(true);
+  });
+
+  test('throws if one or more async disposers throw', async () => {
+    const disposables = new AsyncDisposerSet();
+
+    const disposer1 = new AsyncDisposer(() => void 0);
+    const disposer2 = new AsyncDisposer(() => {
+      throw new Error('Fail');
+    }); // a sync one
+    const disposer3 = new AsyncDisposer(() => void 0);
+    const disposer4 = new AsyncDisposer(async () => {
+      throw new Error('Fail');
+    }); // an async one
+
+    disposables.pushAll([disposer1, disposer2, disposer3, disposer4]);
+    expect(disposables.disposed).toEqual(false);
+
+    let err: AggregateError | undefined;
+    try {
+      await disposables.dispose();
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err?.message).toBe('call(s) to dispose threw');
+    expect(err?.errors.length).toBe(2);
   });
 });
