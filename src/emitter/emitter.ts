@@ -1,25 +1,37 @@
-import StrictEventEmitter from 'strict-event-emitter-types';
 import Emitter = require('wolfy87-eventemitter');
 import { createDisposable, IDisposable } from '../disposable';
 
-export interface IEmitGroup<E extends object> {
+export type EventMap = {
+  [key: string]: (...args: any) => void;
+};
+
+type ons<E extends EventMap> = {
+  [P in keyof E]: (key: P, cb: E[P]) => IDisposable;
+};
+
+type on<E extends EventMap> = ons<E>[keyof ons<E>];
+
+type emits<E extends EventMap> = {
+  [P in keyof E]: (key: P, ...args: Parameters<E[P]>) => void;
+};
+
+type emit<E extends EventMap> = emits<E>[keyof emits<E>];
+
+export interface IEmitGroup<E extends EventMap> {
   queueCount: number;
-  emit: EventEmitter<E>['emit'];
+  emit: emit<E>;
   flush: () => void;
   reset: () => void;
 }
 
-export interface IEventEmitter<E extends object> extends StrictEventEmitter<IEventEmitterInstance, E> {
+export interface IEventEmitter<E extends EventMap> extends IDisposable {
+  on: on<E>;
+  emit: emit<E>;
+  hasListeners: boolean;
   createEmitGroup(): IEmitGroup<E>;
 }
 
-export interface IEventEmitterInstance extends IDisposable {
-  on(type: number | string, listener: any): IDisposable;
-  emit<A extends unknown[] = unknown[]>(type: number | string, ...args: A): void;
-  hasListeners: boolean;
-}
-
-export class EventEmitter<E extends object> implements IEventEmitter<E> {
+export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
   private _emitter = new Emitter();
 
   public on(type: unknown, listener: Function): IDisposable {
@@ -55,7 +67,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
   public createEmitGroup(): IEmitGroup<E> {
     const notifier = this;
 
-    const eventQueue: Array<[string, unknown[]]> = [];
+    const eventQueue: Array<[string | number | symbol, unknown[]]> = [];
     let flushed = false;
 
     return {
@@ -63,7 +75,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
         return eventQueue.length;
       },
 
-      emit(event: string, ...args: any) {
+      emit(event, ...args: any) {
         // if we've already flushed this group, emit any subsequent events immediately
         if (flushed) {
           notifier.emit(event, ...args);
@@ -91,13 +103,4 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
       },
     };
   }
-}
-
-// needed to make typings work correctly when subclassing the emitter
-// see https://github.com/bterlson/strict-event-emitter-types/issues/3
-// example usage `class MyClass extends createEventEmitter<IEvents>() { }`
-export function createEventEmitter<T extends object>() {
-  const TypedEmitter: new () => StrictEventEmitter<IEventEmitterInstance, T> = EventEmitter;
-
-  return TypedEmitter;
 }

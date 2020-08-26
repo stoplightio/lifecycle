@@ -31,7 +31,6 @@
     "test.watch": "yarn test --watch"
   },
   "dependencies": {
-    "strict-event-emitter-types": "^2.0.0",
     "wolfy87-eventemitter": "~5.2.8"
   },
   "devDependencies": {
