@@ -5,28 +5,16 @@ export type EventMap = {
   [key: string]: (...args: any) => void;
 };
 
-type ons<E extends EventMap> = {
-  [P in keyof E]: (key: P, cb: E[P]) => IDisposable;
-};
-
-type on<E extends EventMap> = ons<E>[keyof ons<E>];
-
-type emits<E extends EventMap> = {
-  [P in keyof E]: (key: P, ...args: Parameters<E[P]>) => void;
-};
-
-type emit<E extends EventMap> = emits<E>[keyof emits<E>];
-
 export interface IEmitGroup<E extends EventMap> {
   queueCount: number;
-  emit: emit<E>;
+  emit<P extends keyof E>(type: P, args: Parameters<E[P]>): void;
   flush: () => void;
   reset: () => void;
 }
 
 export interface IEventEmitter<E extends EventMap> extends IDisposable {
-  on: on<E>;
-  emit: emit<E>;
+  on<P extends keyof E>(type: P, listener: E[P]): IDisposable;
+  emit<P extends keyof E>(type: P, args: Parameters<E[P]>): void;
   hasListeners: boolean;
   createEmitGroup(): IEmitGroup<E>;
 }
@@ -34,7 +22,7 @@ export interface IEventEmitter<E extends EventMap> extends IDisposable {
 export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
   private _emitter = new Emitter();
 
-  public on(type: unknown, listener: Function): IDisposable {
+  public on<P extends keyof E>(type: P, listener: E[P]): IDisposable {
     this._emitter.on(String(type), listener);
     return createDisposable(() => {
       this._emitter.off(String(type), listener);
