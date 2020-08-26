@@ -7,14 +7,14 @@ export type EventMap = {
 
 export interface IEmitGroup<E extends EventMap> {
   queueCount: number;
-  emit<P extends keyof E>(type: P, args: Parameters<E[P]>): void;
+  emit<P extends keyof E>(type: P, ...args: Parameters<E[P]>): void;
   flush: () => void;
   reset: () => void;
 }
 
 export interface IEventEmitter<E extends EventMap> extends IDisposable {
   on<P extends keyof E>(type: P, listener: E[P]): IDisposable;
-  emit<P extends keyof E>(type: P, args: Parameters<E[P]>): void;
+  emit<P extends keyof E>(type: P, ...args: Parameters<E[P]>): void;
   hasListeners: boolean;
   createEmitGroup(): IEmitGroup<E>;
 }
@@ -29,7 +29,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
     });
   }
 
-  public emit(type: unknown, ...args: unknown[]): void {
+  public emit<P extends keyof E>(type: P, ...args: Parameters<E[P]>): void {
     this._emitter.trigger(String(type), args);
   }
 
@@ -55,7 +55,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
   public createEmitGroup(): IEmitGroup<E> {
     const notifier = this;
 
-    const eventQueue: Array<[string | number | symbol, unknown[]]> = [];
+    const eventQueue: Array<[keyof E, unknown[]]> = [];
     let flushed = false;
 
     return {
@@ -75,7 +75,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
       flush() {
         for (const [event, args] of eventQueue) {
           try {
-            notifier.emit(event, ...args);
+            notifier.emit(event, ...(args as any));
           } catch (e) {
             // noop
           }
