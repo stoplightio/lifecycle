@@ -23,9 +23,17 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
   private _emitter = new Emitter();
 
   public on(type: unknown, listener: Function): IDisposable {
-    this._emitter.on(String(type), listener);
+    const wrappedListener = (...args: any[]): void => {
+      try {
+        listener(...args);
+      } catch (ex) {
+        console.error(ex);
+      }
+    };
+
+    this._emitter.on(String(type), wrappedListener);
     return createDisposable(() => {
-      this._emitter.off(String(type), listener);
+      this._emitter.off(String(type), wrappedListener);
     });
   }
 

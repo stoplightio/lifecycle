@@ -1,6 +1,16 @@
 import { EventEmitter, IEventEmitter } from '..';
 
 describe('emitter', () => {
+  let errorSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    errorSpy = jest.spyOn(console, 'error').mockImplementation(Function);
+  });
+
+  afterEach(() => {
+    errorSpy.mockRestore();
+  });
+
   test('emit', () => {
     const onEventFired1 = jest.fn();
     const onEventFired2 = jest.fn();
@@ -55,6 +65,28 @@ describe('emitter', () => {
     expect(onEventFired1).not.toHaveBeenCalled();
     expect(onEventFired2).not.toHaveBeenCalled();
     expect(onEventFired3).not.toHaveBeenCalled();
+  });
+
+  test('exceptions handling', () => {
+    const onEventFired1 = jest.fn();
+    const onEventFired2 = jest.fn(() => {
+      throw new Error('foo');
+    });
+    const onEventFired3 = jest.fn();
+
+    const e = new EventEmitter();
+
+    e.on('go', onEventFired1);
+    e.on('go', onEventFired2);
+    e.on('go', onEventFired3);
+
+    expect(e.hasListeners).toBe(true);
+
+    e.emit('go', 'yo');
+
+    expect(onEventFired1).toHaveBeenCalledWith('yo');
+    expect(onEventFired2).toHaveBeenCalledWith('yo');
+    expect(onEventFired3).toHaveBeenCalledWith('yo');
   });
 
   describe('createEmitGroup', () => {
