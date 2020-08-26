@@ -1,6 +1,6 @@
 import StrictEventEmitter from 'strict-event-emitter-types';
 import Emitter = require('wolfy87-eventemitter');
-import { createDisposable, IDisposable } from '../disposable';
+import { Disposer, IDisposable } from '../disposer';
 
 export interface IEmitGroup<E extends object> {
   queueCount: number;
@@ -24,7 +24,7 @@ export class EventEmitter<E extends object> implements IEventEmitter<E> {
 
   public on(type: unknown, listener: Function): IDisposable {
     this._emitter.on(String(type), listener);
-    return createDisposable(() => {
+    return new Disposer(() => {
       this._emitter.off(String(type), listener);
     });
   }
