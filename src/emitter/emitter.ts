@@ -2,7 +2,7 @@ import Emitter = require('wolfy87-eventemitter');
 import { createDisposable, IDisposable } from '../disposable';
 
 export type EventMap = {
-  [key: string]: (...args: any) => void;
+  [key: string]: (...args: any[]) => void;
 };
 
 export interface IEmitGroup<E extends EventMap> {
@@ -63,7 +63,10 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
   public createEmitGroup(): IEmitGroup<E> {
     const notifier = this;
 
-    const eventQueue: Array<[keyof E, unknown[]]> = [];
+    // Fancy
+    type EventQueueTuple = { [P in keyof E]: [P, Parameters<E[P]>] }[keyof E];
+
+    const eventQueue: EventQueueTuple[] = [];
     let flushed = false;
 
     return {
@@ -71,7 +74,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
         return eventQueue.length;
       },
 
-      emit(event, ...args: any) {
+      emit(event, ...args) {
         // if we've already flushed this group, emit any subsequent events immediately
         if (flushed) {
           notifier.emit(event, ...args);
@@ -83,7 +86,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
       flush() {
         for (const [event, args] of eventQueue) {
           try {
-            notifier.emit(event, ...(args as any));
+            notifier.emit(event, ...args);
           } catch (e) {
             // noop
           }
