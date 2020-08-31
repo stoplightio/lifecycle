@@ -46,7 +46,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
 
     this._emitter.on(String(type), wrappedListener);
     return createDisposable(() => {
-      this._registeredListeners.get(type)?.delete(listener);
+      registeredListeners?.delete(listener);
       this._emitter.off(String(type), wrappedListener);
     });
   }
