@@ -44,17 +44,19 @@ describe('emitter', () => {
     expect(e.hasListeners).toBe(false);
   });
 
-  test('execute the handler once for a given event', () => {
+  test('throw if same handler added multiple times for a given event', () => {
     const onEventFired = jest.fn();
 
     const e = new EventEmitter();
 
     e.on('go', onEventFired);
-    e.on('go', onEventFired);
-    e.on('go', onEventFired);
+    expect(() => e.on('go', onEventFired)).toThrow("Double-registered for 'go' event.");
+
+    const disposable = e.on('go-2', onEventFired);
+    expect(() => e.on('go-2', onEventFired)).toThrow("Double-registered for 'go-2' event.");
+    disposable.dispose();
     e.on('go-2', onEventFired);
-    e.on('go-2', onEventFired);
-    e.on('go-2', onEventFired);
+    expect(() => e.on('go-2', onEventFired)).toThrow("Double-registered for 'go-2' event.");
 
     e.emit('go', 'yo');
     e.emit('go-2', 'yo-2');

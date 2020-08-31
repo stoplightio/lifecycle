@@ -31,7 +31,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
       registeredListeners = new WeakSet();
       this._registeredListeners.set(type, registeredListeners);
     } else if (registeredListeners.has(listener)) {
-      return createDisposable(Function);
+      throw new Error(`Double-registered for '${type}' event.`);
     }
 
     const wrappedListener = (...args: any[]): void => {
