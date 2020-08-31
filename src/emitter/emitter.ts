@@ -20,9 +20,20 @@ export interface IEventEmitter<E extends EventMap> extends IDisposable {
 }
 
 export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
-  private _emitter = new Emitter();
+  private readonly _emitter = new Emitter();
+
+  private readonly _registeredListeners = new Map<keyof E, WeakSet<Function>>();
 
   public on<P extends keyof E>(type: P, listener: E[P]): IDisposable {
+    let registeredListeners = this._registeredListeners.get(type);
+
+    if (registeredListeners === void 0) {
+      registeredListeners = new WeakSet();
+      this._registeredListeners.set(type, registeredListeners);
+    } else if (registeredListeners.has(listener)) {
+      return createDisposable(Function);
+    }
+
     const wrappedListener = (...args: any[]): void => {
       try {
         listener(...args);
@@ -30,6 +41,8 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
         console.error(ex);
       }
     };
+
+    registeredListeners.add(listener);
 
     this._emitter.on(String(type), wrappedListener);
     return createDisposable(() => {
@@ -57,6 +70,7 @@ export class EventEmitter<E extends EventMap> implements IEventEmitter<E> {
   }
 
   public dispose() {
+    this._registeredListeners.clear();
     this._emitter.removeAllListeners();
   }
 

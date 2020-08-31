@@ -44,6 +44,26 @@ describe('emitter', () => {
     expect(e.hasListeners).toBe(false);
   });
 
+  test('execute the handler once for a given event', () => {
+    const onEventFired = jest.fn();
+
+    const e = new EventEmitter();
+
+    e.on('go', onEventFired);
+    e.on('go', onEventFired);
+    e.on('go', onEventFired);
+    e.on('go-2', onEventFired);
+    e.on('go-2', onEventFired);
+    e.on('go-2', onEventFired);
+
+    e.emit('go', 'yo');
+    e.emit('go-2', 'yo-2');
+
+    expect(onEventFired).toBeCalledTimes(2);
+    expect(onEventFired).nthCalledWith(1, 'yo');
+    expect(onEventFired).nthCalledWith(2, 'yo-2');
+  });
+
   test('dispose', () => {
     const onEventFired1 = jest.fn();
     const onEventFired2 = jest.fn();
